@@ -1,0 +1,30 @@
+function GetCalendar(){
+  var getsheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var calid;
+
+  calid = getsheet.getRange("A" + 2 + ":H" + getsheet.getLastRow()).getValues();  
+  
+  var day = new Date();
+  for(var i = 0;i<calid.length;i++){
+    var todayevents = CalendarApp.getCalendarById(calid[i][0]).getEventsForDay(day); 
+    var alldata;
+    Logger.log(calid[i][0]);
+    for(var cnt = 0; todayevents.length>cnt;cnt++){
+      if(cnt == 0){
+        alldata = "件名：" + todayevents[cnt].getTitle() + "\n" + "Googlemap：" + todayevents[cnt].getLocation() + "\n" + "開始時間：" + Utilities.formatDate(todayevents[cnt].getStartTime(),'Asia/Tokyo', 'yyyy年MM月dd日HH時mm分') + "\n" + "終了時間：" + Utilities.formatDate(todayevents[cnt].getEndTime(),'Asia/Tokyo', 'yyyy年MM月dd日HH時mm分') + "\n\n"
+      }else{
+        alldata = alldata + "件名：" + todayevents[cnt].getTitle() + "\n" + "Googlemap：" + todayevents[cnt].getLocation() + "\n" + "開始時間：" + Utilities.formatDate(todayevents[cnt].getStartTime(),'Asia/Tokyo', 'yyyy年MM月dd日HH時mm分') + "\n" + "終了時間：" + Utilities.formatDate(todayevents[cnt].getEndTime(),'Asia/Tokyo', 'yyyy年MM月dd日HH時mm分') + "\n\n"; 
+      }
+      var week = day.getDay();
+    }
+    if(calid[i][week+1] !== ""){
+      if(alldata == undefined){
+        MailApp.sendEmail(calid[i][0],"本日の予定（仮）","本日の予定はありません。");
+      }else{
+        MailApp.sendEmail(calid[i][0],"本日の予定（仮）",alldata);
+      }
+    }else{
+      Logger.log("送信しませんでした。");
+    }
+  }
+}
